@@ -1,0 +1,89 @@
+rules_version = '2';
+
+// ============================================================
+// 오늘의 QT — Firestore 보안 규칙
+// ------------------------------------------------------------
+// 적용 방법: Firebase 콘솔 → Firestore Database → 규칙 탭에서
+// 아래 내용 전체를 복사해서 붙여넣고 "게시" 버튼 클릭
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /meditations/{meditationId} {
+
+      // 읽기: "나만 보기"(private)가 아니면 로그인한 사용자(익명 포함) 누구나 읽기 가능
+      //       "나만 보기"는 작성자 본인만 읽기 가능
+      allow read: if request.auth != null &&
+        (resource.data.privacy != 'private' || resource.data.uid == request.auth.uid);
+
+      // 생성: 로그인한 사용자가, 자기 uid로만 글을 쓸 수 있음 (남의 uid로 위조 불가)
+      allow create: if request.auth != null &&
+        request.resource.data.uid == request.auth.uid;
+
+      // 수정: 아래 두 경우만 허용
+      //  1) 작성자 본인이 자기 글을 수정하는 경우
+      //  2) 다른 사용자가 좋아요(likedBy, likeCount) 필드만 바꾸는 경우 — 그 외 필드는 못 건드림
+      allow update: if request.auth != null && (
+        resource.data.uid == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedBy', 'likeCount', 'commentCount'])
+      );
+
+      // 삭제: 작성자 본인만 가능
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+
+      // ── 댓글 서브컬렉션 ──────────────────────────────────
+      match /comments/{commentId} {
+
+        // 읽기: 부모 묵상이 비공개가 아니면 로그인 사용자 누구나
+        allow read: if request.auth != null;
+
+        // 생성: 자기 uid로만 댓글 작성 가능
+        allow create: if request.auth != null &&
+          request.resource.data.uid == request.auth.uid;
+
+        // 수정/삭제: 댓글 작성자 본인만
+        allow update, delete: if request.auth != null &&
+          resource.data.uid == request.auth.uid;
+      }
+    }
+
+    // ── 사용자 프로필 (교회/소그룹 이름) ─────────────────────
+    match /users/{uid} {
+      // 본인 문서만 읽기/쓰기 가능
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── 알림 (좋아요/댓글 받았을 때 자동 생성) ──────────────
+    match /notifications/{notifId} {
+      // 읽기: 내 앞으로 온 알림만
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+
+      // 생성: 로그인한 사용자가, 본인이 보낸 알림만(fromUid 위조 불가),
+      //       자기 자신에게 보내는 알림은 불가
+      allow create: if request.auth != null &&
+        request.resource.data.fromUid == request.auth.uid &&
+        request.resource.data.uid != request.auth.uid;
+
+      // 수정: 알림 수신자 본인이 read 필드만 바꾸는 경우
+      allow update: if request.auth != null &&
+        resource.data.uid == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+
+      allow delete: if false;
+    }
+
+    // ── 공지사항 (프리미엄 소식 등, 전체 공지) ──────────────
+    match /announcements/{announcementId} {
+      // 읽기: 로그인한 사용자 누구나
+      allow read: if request.auth != null;
+      // 쓰기: 클라이언트에서는 불가 (Firebase 콘솔에서 직접 문서 추가)
+      allow write: if false;
+    }
+
+    // 위에서 명시한 meditations 컬렉션 외에는 기본적으로 전부 차단
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
