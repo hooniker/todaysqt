@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "오늘의 QT",
   "short_name": "오늘의 QT",
   "description": "매일의 말씀 묵상을 나누는 오늘의 QT",
@@ -9,6 +10,8 @@
   "background_color": "#F8F7F5",
   "theme_color": "#C8855A",
   "lang": "ko",
+  "categories": ["lifestyle", "books"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192.png",
