@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.hooniker.todaysqt",
+      "sha256_cert_fingerprints": [
+        "53:D1:58:43:B9:53:0E:43:84:2F:4D:0A:00:55:71:94:BF:39:BB:02:4C:0E:F1:7D:86:3B:D8:DA:B9:3A:41:9C",
+        "0E:B6:1F:C7:47:3C:00:6F:25:4B:25:7E:71:F2:B4:BC:F2:F1:BE:B5:3B:D9:10:0F:42:31:00:1A:5F:B5:EE:D0"
+      ]
+    }
+  }
+]
