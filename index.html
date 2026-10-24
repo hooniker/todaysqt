@@ -2211,6 +2211,92 @@ function formatVerse(text) {
 var verseText = '여호와는 나의 목자시니 내게 부족함이 없으리로다그가 나를 푸른 풀밭에 누이시며쉴 만한 물 가로 인도하시는도다내 영혼을 소생시키시고자기 이름을 위하여 의의 길로 인도하시는도다.';
 document.getElementById("verse-display").textContent = formatVerse(verseText);
 
+// ===== 오늘의 말씀: verses.json에서 날짜별 말씀 불러오기 =====
+// verses.json은 매일 새벽 노션 "📖 오늘의 QT 말씀" 디비에서 자동으로 만들어집니다.
+(function loadTodayVerse() {
+  // 한국 시간 기준 오늘 날짜 (YYYY-MM-DD)
+  function todayKST() {
+    var parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date());
+    var y, m, d;
+    parts.forEach(function(p) {
+      if (p.type === "year") y = p.value;
+      if (p.type === "month") m = p.value;
+      if (p.type === "day") d = p.value;
+    });
+    return y + "-" + m + "-" + d;
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function setText(sel, text) {
+    var el = document.querySelector(sel);
+    if (el) el.textContent = text;
+  }
+  function setHtml(sel, html) {
+    var el = document.querySelector(sel);
+    if (el) el.innerHTML = html;
+  }
+
+  var today = todayKST();
+  var t = today.split("-");
+  var longDate = Number(t[0]) + "년 " + Number(t[1]) + "월 " + Number(t[2]) + "일";
+  var shortDate = Number(t[1]) + "월 " + Number(t[2]) + "일";
+
+  // 말씀을 못 불러와도 날짜는 항상 오늘로 표시
+  setText("#p-home .verse-date", "📅 " + longDate + " · 오늘의 말씀");
+  setText("#p-verse .vf-date", "📅 " + longDate + " · 오늘의 말씀");
+  setText("#p-meditation .med-date", shortDate);
+
+  function applyVerse(v) {
+    var ref = v.ref || "";
+    var text = v.text || "";
+    var label = ref + (v.version ? " (" + v.version + ")" : "");
+    var htmlText = esc(text).replace(/\n/g, "<br>");
+
+    setText("#p-home .verse-ref", ref);
+    var disp = document.getElementById("verse-display");
+    if (disp) disp.textContent = formatVerse(text.replace(/\n/g, " "));
+
+    setText("#p-verse .vf-ref", label);
+    setHtml("#p-verse .vf-text", htmlText);
+
+    setText("#p-meditation .med-verse-ref", ref + " · 오늘의 말씀");
+    setHtml("#p-meditation .med-verse-text", htmlText);
+
+    setText("#p-feed .fp-sub", "📅 " + longDate + " · " + ref);
+  }
+
+  fetch("/verses.json?t=" + Date.now(), { cache: "no-store" })
+    .then(function(res) { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+    .then(function(data) {
+      var list = (data && data.verses) || [];
+      if (!list.length) return;
+      // 1순위: 오늘 날짜 말씀, 2순위: 오늘 이전 가장 최근 말씀, 3순위: 가장 이른 말씀
+      var pick = null;
+      list.forEach(function(v) {
+        if (v.date === today) pick = v;
+      });
+      if (!pick) {
+        list.forEach(function(v) {
+          if (v.date < today && (!pick || v.date > pick.date)) pick = v;
+        });
+      }
+      if (!pick) {
+        list.forEach(function(v) {
+          if (!pick || v.date < pick.date) pick = v;
+        });
+      }
+      if (pick) applyVerse(pick);
+    })
+    .catch(function(err) {
+      console.warn("[오늘의 말씀] verses.json을 불러오지 못해 기본 말씀을 표시합니다.", err);
+    });
+})();
+
 function goPage(name) {
   document.querySelectorAll(".page").forEach(function(p) { p.classList.remove("on"); });
   document.querySelectorAll(".nav-btn").forEach(function(b) { b.classList.remove("on"); });
