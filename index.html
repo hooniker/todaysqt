@@ -1564,6 +1564,26 @@ body {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
   }
 }
+
+/* ===== 홈 화면 전체 스크롤 =====
+   나눔 카드(소그룹/나만보기/교회/전체)를 고정 높이 상자 대신
+   글 개수만큼 늘어나게 하고, 홈 화면 전체가 위아래로 스크롤되게 함 */
+#p-home .scroll-area {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 14px;
+}
+#p-home .scroll-area::-webkit-scrollbar { display: none; }
+#p-home .scroll-area > * { flex-shrink: 0; }
+#p-home .feed-card {
+  height: auto;
+  min-height: 220px;
+}
+#p-home .feed-list {
+  flex: none;
+  overflow: visible;
+  padding-bottom: 14px;
+}
 </style>
 </head>
 <body>
