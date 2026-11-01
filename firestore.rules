@@ -5,6 +5,11 @@ rules_version = '2';
 // ------------------------------------------------------------
 // 적용 방법: Firebase 콘솔 → Firestore Database → 규칙 탭에서
 // 아래 내용 전체를 복사해서 붙여넣고 "게시" 버튼 클릭
+//
+// [계정 삭제 기능을 위해 바뀐 부분 — "계정 삭제" 표시]
+//  1) 묵상 작성자는 자기 글에 달린 다른 사람의 댓글도 삭제 가능
+//  2) 내 댓글을 모든 묵상에서 찾기 위한 collection group 읽기 허용
+//  3) 알림: 받은 사람/보낸 사람 본인이 자기 관련 알림을 읽고 삭제 가능
 // ============================================================
 
 service cloud.firestore {
@@ -35,17 +40,28 @@ service cloud.firestore {
       // ── 댓글 서브컬렉션 ──────────────────────────────────
       match /comments/{commentId} {
 
-        // 읽기: 부모 묵상이 비공개가 아니면 로그인 사용자 누구나
+        // 읽기: 로그인 사용자 누구나
         allow read: if request.auth != null;
 
         // 생성: 자기 uid로만 댓글 작성 가능
         allow create: if request.auth != null &&
           request.resource.data.uid == request.auth.uid;
 
-        // 수정/삭제: 댓글 작성자 본인만
-        allow update, delete: if request.auth != null &&
+        // 수정: 댓글 작성자 본인만
+        allow update: if request.auth != null &&
           resource.data.uid == request.auth.uid;
+
+        // 삭제: 댓글 작성자 본인 + (계정 삭제) 그 묵상의 작성자
+        allow delete: if request.auth != null && (
+          resource.data.uid == request.auth.uid ||
+          get(/databases/$(database)/documents/meditations/$(meditationId)).data.uid == request.auth.uid
+        );
       }
+    }
+
+    // ── (계정 삭제) 내가 쓴 댓글을 모든 묵상에서 한 번에 찾기 위한 collection group 읽기 ──
+    match /{path=**}/comments/{commentId} {
+      allow read: if request.auth != null;
     }
 
     // ── 사용자 프로필 (교회/소그룹 이름) ─────────────────────
@@ -56,8 +72,9 @@ service cloud.firestore {
 
     // ── 알림 (좋아요/댓글 받았을 때 자동 생성) ──────────────
     match /notifications/{notifId} {
-      // 읽기: 내 앞으로 온 알림만
-      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+      // 읽기: 내 앞으로 온 알림 + (계정 삭제) 내가 보낸 알림
+      allow read: if request.auth != null &&
+        (resource.data.uid == request.auth.uid || resource.data.fromUid == request.auth.uid);
 
       // 생성: 로그인한 사용자가, 본인이 보낸 알림만(fromUid 위조 불가),
       //       자기 자신에게 보내는 알림은 불가
@@ -70,7 +87,9 @@ service cloud.firestore {
         resource.data.uid == request.auth.uid &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
 
-      allow delete: if false;
+      // 삭제 (계정 삭제): 받은 사람 또는 보낸 사람 본인만
+      allow delete: if request.auth != null &&
+        (resource.data.uid == request.auth.uid || resource.data.fromUid == request.auth.uid);
     }
 
     // ── 공지사항 (프리미엄 소식 등, 전체 공지) ──────────────
@@ -81,7 +100,7 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // 위에서 명시한 meditations 컬렉션 외에는 기본적으로 전부 차단
+    // 위에서 명시한 컬렉션 외에는 기본적으로 전부 차단
     match /{document=**} {
       allow read, write: if false;
     }

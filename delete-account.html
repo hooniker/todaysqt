@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘의 QT 계정 및 데이터 삭제 안내</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.75;color:#222;max-width:760px;margin:0 auto;padding:24px 16px 64px;background:#fff}
+  h1{font-size:1.5rem;margin-bottom:4px}
+  h2{font-size:1.1rem;margin-top:2rem;border-bottom:1px solid #e3e3e3;padding-bottom:6px}
+  table{border-collapse:collapse;width:100%;font-size:.92rem;margin:10px 0}
+  th,td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top}
+  th{background:#f6f6f6}
+  .meta{color:#666;font-size:.9rem}
+  form{border:1px solid #ddd;border-radius:10px;padding:16px;margin:12px 0}
+  label{display:block;font-weight:600;margin:10px 0 4px}
+  input,textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid #bbb;border-radius:8px;font:inherit;background:inherit;color:inherit}
+  button{margin-top:14px;padding:12px 18px;border:0;border-radius:8px;background:#3b6ea5;color:#fff;font:inherit;font-weight:600;cursor:pointer}
+  .check{display:flex;gap:8px;align-items:flex-start;margin-top:12px}
+  .check input{width:auto;margin-top:6px}
+  @media (prefers-color-scheme:dark){body{background:#111;color:#e6e6e6}h2{border-color:#333}th{background:#1c1c1c}th,td,form,input,textarea{border-color:#333}.meta{color:#aaa}}
+</style>
+</head>
+<body>
+<h1>오늘의 QT 계정 및 데이터 삭제 안내</h1>
+<p class="meta">앱: 오늘의 QT (com.hooniker.todaysqt) · 운영자: hooniker</p>
+
+<h2>1. 앱에서 직접 삭제하기</h2>
+<ol>
+  <li>오늘의 QT 앱을 실행하고 Google 계정으로 로그인합니다.</li>
+  <li>설정 메뉴에서 <strong>'계정 삭제'</strong>를 선택합니다.</li>
+  <li>안내 문구를 확인하고 삭제를 확정합니다.</li>
+</ol>
+
+<h2>2. 이 페이지에서 바로 삭제하기</h2>
+<p>앱을 설치하지 않았거나 지운 경우에도, 가입에 사용한 Google 계정으로 로그인하면 이 페이지에서 바로 계정과 데이터를 삭제할 수 있습니다.</p>
+<div id="web-delete" style="border:1px solid #ddd;border-radius:10px;padding:16px;margin:12px 0">
+  <div id="wd-status">Google 계정으로 로그인해 주세요.</div>
+  <button id="wd-login" type="button">Google로 로그인</button>
+  <div class="check" id="wd-agree-row" style="display:none"><input id="wd-agree" type="checkbox"><label for="wd-agree" style="margin:0;font-weight:400">작성한 묵상, 댓글, 좋아요, 소속 정보가 모두 삭제되며 복구할 수 없다는 점을 확인했습니다.</label></div>
+  <button id="wd-delete" type="button" style="display:none;background:#b3261e">내 계정과 모든 데이터 삭제</button>
+</div>
+
+<h2>3. 앱에 접속할 수 없는 경우: 삭제 요청하기</h2>
+<p>위 방법을 쓸 수 없다면 아래 양식으로 삭제를 요청해 주세요. 작성 후 버튼을 누르면 이메일 앱이 열리며, 내용을 확인하고 전송하시면 됩니다. 가입 시 사용한 Google 계정 이메일로 본인 확인을 한 뒤 삭제하며, <strong>요청일로부터 30일 이내</strong>에 처리합니다.</p>
+<form id="req">
+  <label for="email">가입에 사용한 Google 이메일</label>
+  <input id="email" type="email" required placeholder="example@gmail.com" autocomplete="email">
+  <label for="note">전달할 내용 (선택)</label>
+  <textarea id="note" rows="3" placeholder="예: 계정과 모든 묵상 기록을 삭제해 주세요."></textarea>
+  <div class="check"><input id="agree" type="checkbox" required><label for="agree" style="margin:0;font-weight:400">삭제 후에는 묵상 기록 등을 복구할 수 없다는 점을 확인했습니다.</label></div>
+  <button type="submit">삭제 요청 메일 작성</button>
+</form>
+<p>이메일로 직접 보내셔도 됩니다: <a href="mailto:hooniker@gmail.com?subject=%5B%EC%98%A4%EB%8A%98%EC%9D%98%20QT%5D%20%EA%B3%84%EC%A0%95%20%EC%82%AD%EC%A0%9C%20%EC%9A%94%EC%B2%AD">hooniker@gmail.com</a> (제목: [오늘의 QT] 계정 삭제 요청)</p>
+
+<h2>4. 삭제되는 데이터와 보관되는 데이터</h2>
+<table>
+  <tr><th>구분</th><th>내용</th><th>처리</th></tr>
+  <tr><td>삭제</td><td>계정 정보(이메일, 이름, 프로필 사진, UID), 묵상 글, 댓글, 좋아요, 교회·그룹 소속 정보, 알림 토큰, 설정 정보</td><td>삭제 확정 또는 요청 처리 시 삭제</td></tr>
+  <tr><td>보관</td><td>없음 (법령상 별도 보관이 필요한 정보가 생기는 경우 해당 기간 동안만 보관)</td><td>-</td></tr>
+</table>
+<p>시스템 백업에 남은 정보는 백업 주기에 따라 순차적으로 삭제되며, 요청일로부터 30일 이내에 모두 파기됩니다.</p>
+
+<h2>5. 문의</h2>
+<p>이메일: <a href="mailto:hooniker@gmail.com">hooniker@gmail.com</a><br>
+자세한 내용은 <a href="privacy.html">개인정보처리방침</a>을 참고해 주세요.</p>
+
+<script>
+document.getElementById('req').addEventListener('submit',function(e){
+  e.preventDefault();
+  var email=document.getElementById('email').value.trim();
+  var note=document.getElementById('note').value.trim();
+  var body='앱: 오늘의 QT\n가입 Google 이메일: '+email+'\n요청: 계정 및 모든 데이터 삭제\n'+(note?'\n전달 내용:\n'+note+'\n':'');
+  location.href='mailto:hooniker@gmail.com?subject='+encodeURIComponent('[오늘의 QT] 계정 삭제 요청')+'&body='+encodeURIComponent(body);
+});
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { deleteMyAccount } from "./account-delete.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyB5oRUK_beEH61lumqbgljeKlTQ8cM4wnM",
+  authDomain: "todaysqt-6b0c8.firebaseapp.com",
+  projectId: "todaysqt-6b0c8",
+  storageBucket: "todaysqt-6b0c8.firebasestorage.app",
+  messagingSenderId: "893754342999",
+  appId: "1:893754342999:web:a9e35273295e5ca9e4ed12"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = (id) => document.getElementById(id);
+const status = $("wd-status"), loginBtn = $("wd-login"), delBtn = $("wd-delete"), agreeRow = $("wd-agree-row"), agree = $("wd-agree");
+
+onAuthStateChanged(auth, (user) => {
+  const signedIn = !!(user && user.providerData && user.providerData.length > 0);
+  if (signedIn) {
+    status.textContent = "로그인됨: " + (user.email || user.displayName || "Google 계정");
+    loginBtn.textContent = "다른 계정으로 로그인";
+    agreeRow.style.display = "flex";
+    delBtn.style.display = "inline-block";
+  } else {
+    status.textContent = "Google 계정으로 로그인해 주세요.";
+    loginBtn.textContent = "Google로 로그인";
+    agreeRow.style.display = "none";
+    delBtn.style.display = "none";
+  }
+});
+
+loginBtn.addEventListener("click", async () => {
+  try {
+    if (auth.currentUser) await signOut(auth);
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (e) {
+    if (e.code !== "auth/popup-closed-by-user") status.textContent = "로그인에 실패했어요. 다시 시도해 주세요.";
+  }
+});
+
+delBtn.addEventListener("click", async () => {
+  if (!agree.checked) { status.textContent = "확인란에 체크해 주세요."; return; }
+  if (!confirm("정말 삭제할까요? 삭제 후에는 복구할 수 없습니다.")) return;
+  delBtn.disabled = true; loginBtn.disabled = true;
+  try {
+    const result = await deleteMyAccount(auth, db, (m) => { status.textContent = m; });
+    status.textContent = result.warnings.length
+      ? "계정을 삭제했습니다. 일부 기록은 삭제하지 못했으니 hooniker@gmail.com 으로 문의해 주세요."
+      : "계정과 모든 데이터를 삭제했습니다.";
+    agreeRow.style.display = "none"; delBtn.style.display = "none";
+  } catch (e) {
+    status.textContent = "삭제 중 문제가 생겼어요. 다시 시도하거나 아래 요청 양식을 이용해 주세요. (" + (e.code || e.message) + ")";
+    delBtn.disabled = false;
+  } finally {
+    loginBtn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

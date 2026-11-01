@@ -1531,6 +1531,14 @@ body {
   cursor: pointer;
   box-shadow: var(--card-shadow);
 }
+.my-delete-account {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: underline;
+  margin: 14px 14px 0;
+  cursor: pointer;
+}
 .my-version {
   text-align: center;
   font-size: 10px;
@@ -2095,6 +2103,7 @@ body {
 
     <!-- 로그아웃 -->
     <div class="my-logout-btn" id="btn-logout">로그아웃</div>
+    <div class="my-delete-account" id="btn-delete-account">계정 삭제</div>
     <div class="my-version">오늘의 QT v1.0.0</div>
 
   </div>
@@ -2682,6 +2691,9 @@ function confirmLogout() {
 }
 
 document.getElementById("btn-logout") && document.getElementById("btn-logout").addEventListener("click", confirmLogout);
+document.getElementById("btn-delete-account") && document.getElementById("btn-delete-account").addEventListener("click", function () {
+  if (window.qtDeleteAccount) window.qtDeleteAccount();
+});
 document.getElementById("google-profile-img") && document.getElementById("google-profile-img").addEventListener("click", confirmLogout);
 document.getElementById("my-avatar-img") && document.getElementById("my-avatar-img").addEventListener("click", confirmLogout);
 

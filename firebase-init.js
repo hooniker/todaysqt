@@ -8,6 +8,9 @@
 //
 // 추가: 구글 로그인 버튼을 누르면 window.signInWithGoogle() 이 실행되며,
 // 기존 익명 계정에 구글 계정을 "연결"해서 UID와 데이터를 그대로 유지합니다.
+//
+// 추가(계정 삭제): window.qtDeleteAccount() 를 호출하면 확인창 → 데이터 삭제 → 계정 삭제
+// (실제 삭제 로직은 account-delete.js 에 있습니다)
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
@@ -22,6 +25,7 @@ import {
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import { deleteMyAccount } from "./account-delete.js";
 
 // 콘솔에서 받은 본인의 firebaseConfig 값 (todaysqt 프로젝트)
 const firebaseConfig = {
@@ -154,6 +158,48 @@ window.qtSignOut = async function () {
     return true;
   } catch (err) {
     console.error("[오늘의QT] 로그아웃 실패:", err.code, err.message);
+    return false;
+  }
+};
+
+// ------------------------------------------------------------
+// 계정 삭제 (마이페이지 '계정 삭제' 버튼에서 호출)
+// ------------------------------------------------------------
+// 확인창을 두 번 거친 뒤, 내 묵상·댓글·좋아요·알림·소속 정보와 로그인 계정을 모두 삭제합니다.
+// 끝나면 화면을 새로고침하고, 기존 코드가 새 익명 계정을 자동으로 만들어 줍니다.
+window.qtDeleteAccount = async function () {
+  if (!auth.currentUser) {
+    alert("로그인 처리 중이에요. 잠시 후 다시 시도해주세요.");
+    return false;
+  }
+  if (!window.confirm("계정을 삭제할까요?\n\n작성한 묵상, 댓글, 좋아요, 소속 정보가 모두 삭제되고 되돌릴 수 없어요.")) {
+    return false;
+  }
+  if (!window.confirm("정말 삭제하시겠어요?\n삭제 후에는 복구할 수 없어요.")) {
+    return false;
+  }
+
+  try {
+    const result = await deleteMyAccount(auth, db, (msg) => console.log("[오늘의QT]", msg));
+    if (result.warnings.length) {
+      console.warn("[오늘의QT] 일부 항목 삭제 실패:", result.warnings);
+    }
+    alert(
+      result.warnings.length
+        ? "계정은 삭제되었어요. 일부 기록은 삭제하지 못했어요. 필요하면 hooniker@gmail.com 으로 문의해주세요."
+        : "계정과 모든 데이터가 삭제되었어요."
+    );
+    window.location.reload();
+    return true;
+  } catch (err) {
+    console.error("[오늘의QT] 계정 삭제 실패:", err.code, err.message);
+    if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") {
+      alert("본인 확인이 취소되어 삭제하지 않았어요.");
+    } else if (err.code === "auth/requires-recent-login") {
+      alert("보안을 위해 다시 로그인한 뒤 삭제해주세요.");
+    } else {
+      alert("계정 삭제 중 문제가 생겼어요. 잠시 후 다시 시도하거나 hooniker@gmail.com 으로 문의해주세요.");
+    }
     return false;
   }
 };
