@@ -186,7 +186,7 @@ window.qtDeleteAccount = async function () {
     }
     alert(
       result.warnings.length
-        ? "계정은 삭제되었어요. 일부 기록은 삭제하지 못했어요. 필요하면 hooniker@gmail.com 으로 문의해주세요."
+        ? "계정은 삭제되었어요. 일부 기록은 삭제하지 못했어요.\n\n[삭제하지 못한 항목]\n" + result.warnings.join("\n") + "\n\n필요하면 hooniker@gmail.com 으로 문의해주세요."
         : "계정과 모든 데이터가 삭제되었어요."
     );
     window.location.reload();
